@@ -1,13 +1,12 @@
 package com.sky.mapper;
 
+import com.github.pagehelper.Page;
 import com.sky.annotation.AutoFill;
+import com.sky.dto.DishPageQueryDTO;
 import com.sky.entity.Dish;
 import com.sky.entity.DishFlavor;
 import com.sky.enumeration.OperationType;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Options;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 
 @Mapper
 public interface DishMapper {
@@ -34,4 +33,15 @@ public interface DishMapper {
 
     @Select("select * from dish where name = #{dishName};")
     Dish getByName(String dishName);
+
+    Page<Dish> pageQuery(DishPageQueryDTO dishPageQueryDTO);
+
+    @Select("select * from dish where id = #{id};")
+    Dish getById(Long id);
+
+    @Delete("delete from dish where id = #{id};")
+    void deleteById(Long id);
+
+    @Delete("delete from dish_flavor where dish_id = #{id};")
+    void deleteFlavorByDishId(Long id);
 }
