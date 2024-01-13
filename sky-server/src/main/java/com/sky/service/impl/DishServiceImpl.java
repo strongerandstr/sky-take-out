@@ -89,5 +89,58 @@ public class DishServiceImpl implements DishService {
 
     }
 
+    /**
+     * 根据DishId返回菜品
+     * @param id
+     * @return
+     */
+    @Override
+    public DishDTO getById(Long id) {
+        // 获取dish表的数据
+        Dish dish = dishMapper.getById(id);
+        // 获取dish_flavor表的数据
+        List<DishFlavor> flavors = dishMapper.getFlavorByDishId(id);
+
+        // 组成DishDTo
+        DishDTO dishDTO = new DishDTO();
+        BeanUtils.copyProperties(dish, dishDTO);
+        dishDTO.setFlavors(flavors);
+        return dishDTO;
+    }
+
+    /**
+     * 修改菜品
+     * @param dishDTO
+     */
+    @Override
+    @Transactional
+    public void update(DishDTO dishDTO) {
+        // 把dishDTO转为Dish和DishFlavor
+
+        Dish dish = new Dish();
+        BeanUtils.copyProperties(dishDTO, dish);
+        dishMapper.updateDish(dish);
+
+        List<DishFlavor> flavors = dishDTO.getFlavors();
+
+        // 对于DishFlavor，应该是先delete后insert
+        Long dishId = dish.getId();
+        dishMapper.deleteFlavorByDishId(dishId);
+        for (DishFlavor flavor : flavors) {
+            flavor.setDishId(dishId);
+            dishMapper.insertDishFlavor(flavor);
+        }
+
+    }
+
+
+    @Override
+    public void updateSaleState(Integer status, Long id) {
+        Dish dish = new Dish();
+        dish.setId(id);
+        dish.setStatus(status);
+        dishMapper.updateDish(dish);
+    }
+
 
 }

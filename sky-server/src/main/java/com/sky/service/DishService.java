@@ -12,4 +12,10 @@ public interface DishService {
     PageResult pageQuery(DishPageQueryDTO dishPageQueryDTO);
 
     void deleteBatch(List<Long> ids);
+
+    DishDTO getById(Long id);
+
+    void update(DishDTO dishDTO);
+
+    void updateSaleState(Integer status, Long id);
 }

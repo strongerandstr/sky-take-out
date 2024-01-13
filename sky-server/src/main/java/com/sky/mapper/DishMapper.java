@@ -8,6 +8,8 @@ import com.sky.entity.DishFlavor;
 import com.sky.enumeration.OperationType;
 import org.apache.ibatis.annotations.*;
 
+import java.util.List;
+
 @Mapper
 public interface DishMapper {
     @Insert("insert into dish (name, category_id, price, image, description, status, create_time, update_time, create_user, update_user)"
@@ -28,7 +30,6 @@ public interface DishMapper {
     @Insert("insert into dish_flavor (dish_id, name, value) "
             + "values "
             + "(#{dishId},#{name},#{value})")
-
     void insertDishFlavor(DishFlavor dishFlavor);
 
     @Select("select * from dish where name = #{dishName};")
@@ -44,4 +45,12 @@ public interface DishMapper {
 
     @Delete("delete from dish_flavor where dish_id = #{id};")
     void deleteFlavorByDishId(Long id);
+
+    @Select("select * from dish_flavor WHERE dish_id = #{id};")
+    List<DishFlavor> getFlavorByDishId(Long id);
+
+    @AutoFill(value = OperationType.UPDATE)
+    void updateDish(Dish dish);
+
+
 }

@@ -11,3 +11,7 @@ sky:
     access-key-id: LTAI5t9UKBmdh1XbDNdJvijk
     access-key-secret: f0h2LElbtaoh6wC4116iCnMnUwbV0o
     bucket-name: javaboyhh
+
+  redis:
+    host: localhost
+    port: 6379
