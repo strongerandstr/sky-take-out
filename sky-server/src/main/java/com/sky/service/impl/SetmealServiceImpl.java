@@ -21,8 +21,12 @@ import com.sky.vo.SetmealVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+
 import java.util.List;
 
 /**
@@ -44,6 +48,7 @@ public class SetmealServiceImpl implements SetmealService {
      * @param setmeal
      * @return
      */
+    @Cacheable(cacheNames = "SetmealCache", key = "#setmeal.categoryId")
     public List<Setmeal> list(Setmeal setmeal) {
         List<Setmeal> list = setmealMapper.list(setmeal);
         return list;
@@ -60,6 +65,7 @@ public class SetmealServiceImpl implements SetmealService {
 
     @Transactional
     @Override
+    @CacheEvict(cacheNames = "SetmealCache", key = "#setmealDTO.categoryId")
     public void save(SetmealDTO setmealDTO) {
         Setmeal setmeal = new Setmeal();
         BeanUtils.copyProperties(setmealDTO, setmeal);

@@ -18,11 +18,15 @@ import com.sky.service.DishService;
 import com.sky.vo.DishVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import springfox.documentation.annotations.Cacheable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class DishServiceImpl implements DishService {
@@ -30,6 +34,9 @@ public class DishServiceImpl implements DishService {
     private DishMapper dishMapper;
     @Autowired
     private SetmealDishMapper setmealDishMapper;
+
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     @Override
     @Transactional
@@ -47,6 +54,8 @@ public class DishServiceImpl implements DishService {
             flavor.setDishId(dishId);
             dishMapper.insertDishFlavor(flavor);
         }
+
+        deleteRedis("dish_*");
 
     }
 
@@ -88,6 +97,8 @@ public class DishServiceImpl implements DishService {
             dishMapper.deleteById(id);
             dishMapper.deleteFlavorByDishId(id);
         }
+
+        deleteRedis("dish_*");
 
     }
 
@@ -133,6 +144,8 @@ public class DishServiceImpl implements DishService {
             dishMapper.insertDishFlavor(flavor);
         }
 
+        deleteRedis("dish_*");
+
     }
 
 
@@ -142,6 +155,8 @@ public class DishServiceImpl implements DishService {
         dish.setId(id);
         dish.setStatus(status);
         dishMapper.updateDish(dish);
+
+        deleteRedis("dish_*");
     }
 
     /**
@@ -149,8 +164,19 @@ public class DishServiceImpl implements DishService {
      * @param dish
      * @return
      */
+
     public List<DishVO> listWithFlavor(Dish dish) {
+        // 改为用 redis缓存菜品：如果redis已有，则直接拿；否则从数据库拿，返回并缓存到redis
+        // 查询 redis是否有
+        //RedisTemplate<String, List<DishVO>> redisTemplate = new RedisTemplate<>();
+        ValueOperations<String, List<DishVO>> op = redisTemplate.opsForValue();
+        List<DishVO> dishVOS = op.get("dish_"+dish.getCategoryId());
+        if(dishVOS != null && dishVOS.size() > 0){
+            return dishVOS;
+        }
+        // redis没有，接着从数据库查询
         List<Dish> dishList = dishMapper.list(dish);
+
 
         List<DishVO> dishVOList = new ArrayList<>();
 
@@ -164,7 +190,14 @@ public class DishServiceImpl implements DishService {
             dishVO.setFlavors(flavors);
             dishVOList.add(dishVO);
         }
-
+        // 缓存到redis
+        op.set("dish_"+dish.getCategoryId(), dishVOList);
         return dishVOList;
+    }
+
+    // 每当有菜品被修改时，（增删改）,就清除redis对应数据
+    private void deleteRedis(String pattern){
+        Set keys = redisTemplate.keys(pattern);
+        redisTemplate.delete(keys);
     }
 }
