@@ -45,4 +45,7 @@ public interface SetmealMapper {
     void save(Setmeal setmeal);
 
     Page<SetmealVO> pageQuery(SetmealPageQueryDTO setmealPageQueryDTO);
+
+    @Select("select * from setmeal where id = #{setmealId};")
+    Setmeal getById(Long setmealId);
 }
