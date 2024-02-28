@@ -12,6 +12,7 @@ import org.apache.ibatis.annotations.Select;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface SetmealMapper {
@@ -48,4 +49,6 @@ public interface SetmealMapper {
 
     @Select("select * from setmeal where id = #{setmealId};")
     Setmeal getById(Long setmealId);
+
+    Integer countByMap(Map map);
 }

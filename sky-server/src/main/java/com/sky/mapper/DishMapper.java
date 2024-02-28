@@ -9,6 +9,7 @@ import com.sky.enumeration.OperationType;
 import org.apache.ibatis.annotations.*;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface DishMapper {
@@ -54,4 +55,6 @@ public interface DishMapper {
 
 
     List<Dish> list(Dish dish);
+
+    Integer countByMap(Map map);
 }

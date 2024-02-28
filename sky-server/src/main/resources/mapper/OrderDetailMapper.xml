@@ -9,4 +9,13 @@
         </foreach>
     </insert>
 
+    <select id="getSalesTop10" resultType="com.sky.dto.GoodsSalesDTO">
+        select name, SUM(number) as number from order_detail
+        where order_id in (
+            select id from orders where order_time between #{beginTime} and #{endTime}
+            )
+        group by name
+        order by number desc
+    </select>
+
 </mapper>
